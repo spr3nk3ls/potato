@@ -23,9 +23,9 @@ public class VideoCreator {
 
     private final FileProvider fileProvider;
 
-    void newVideo() throws IOException {
+    void createVideo(String filename) throws IOException {
         Movie movie = getMovie();
-        FileChannel fc = new FileOutputStream(new File("target/output.mp4")).getChannel();
+        FileChannel fc = new FileOutputStream(new File("target/" + filename + ".mp4")).getChannel();
         Container mp4file = new DefaultMp4Builder().build(movie);
         mp4file.writeContainer(fc);
         fc.close();

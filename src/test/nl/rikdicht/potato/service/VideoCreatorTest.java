@@ -13,7 +13,7 @@ public class VideoCreatorTest {
 
     @Test
     public void createVideoFile() throws IOException {
-        videoCreator.newVideo();
+        videoCreator.createVideo("test");
     }
 
     @Test
