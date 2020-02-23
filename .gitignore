@@ -1,0 +1,4 @@
+/.nosync
+/target/
+/src/main/resources/.nosync
+/.idea/
