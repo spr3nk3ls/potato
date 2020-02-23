@@ -3,6 +3,7 @@ package nl.rikdicht.potato.service;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -13,7 +14,7 @@ public class FileProviderTest {
 
     @Test
     public void getOrdered() {
-        List<File> files = fileProvider.getFiles();
+        List<InputStream> files = fileProvider.getFiles();
         assertEquals(11, files.size());
     }
 }

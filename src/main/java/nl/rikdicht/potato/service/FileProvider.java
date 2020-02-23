@@ -6,7 +6,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,21 +17,21 @@ public class FileProvider {
 
     private static final List<String> ordering = Arrays.asList("a", "b", "c", "d", "b", "c", "d", "b", "c", "e", "c");
 
-    List<File> getFiles(){
-        List<File> orderedFiles = new ArrayList<>();
-        Map<String, List<File>> mappedFiles = getRandomizedMappedFiles();
+    List<InputStream> getFiles(){
+        List<InputStream> orderedFiles = new ArrayList<>();
+        Map<String, List<InputStream>> mappedFiles = getRandomizedMappedFiles();
         for(String order : ordering){
-            List<File> files = mappedFiles.get(order);
+            List<InputStream> files = mappedFiles.get(order);
             if(!files.isEmpty())
                 orderedFiles.add(files.remove(0));
         }
         return orderedFiles;
     }
 
-    private Map<String, List<File>> getRandomizedMappedFiles(){
-        Map<String, List<File>> map = new HashMap<>();
+    private Map<String, List<InputStream>> getRandomizedMappedFiles(){
+        Map<String, List<InputStream>> map = new HashMap<>();
         for(String key : mapping){
-            List<File> files = getResourceFolderFiles("-" + key + "*");
+            List<InputStream> files = getResourceFolderFiles("-" + key + "*");
             Collections.shuffle(files);
             map.put(key, files);
         }
@@ -39,7 +39,7 @@ public class FileProvider {
     }
 
     @SneakyThrows
-    private List<File> getResourceFolderFiles(String pattern) {
+    private List<InputStream> getResourceFolderFiles(String pattern) {
         ClassLoader cl = this.getClass().getClassLoader();
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
         Resource[] resources = resolver.getResources("classpath*:/*" + pattern + ".mp4");
@@ -47,8 +47,8 @@ public class FileProvider {
     }
 
     @SneakyThrows
-    private static File getFileFromResource(Resource resource){
-        return resource.getFile();
+    private static InputStream getFileFromResource(Resource resource){
+        return resource.getInputStream();
     }
 
 }

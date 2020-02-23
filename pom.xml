@@ -22,7 +22,6 @@
     <properties>
         <lombok.version>1.18.10</lombok.version>
         <mp4parser.version>1.9.41</mp4parser.version>
-        <java.version>11</java.version>
     </properties>
 
     <dependencies>
@@ -72,7 +71,6 @@
                             <showWarnings>true</showWarnings>
                             <showDeprecation>true</showDeprecation>
                             <failOnWarning>true</failOnWarning>
-                            <release>11</release>
                         </configuration>
                     </execution>
                 </executions>
