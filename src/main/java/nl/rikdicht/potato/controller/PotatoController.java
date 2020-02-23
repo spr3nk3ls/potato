@@ -3,15 +3,18 @@ package nl.rikdicht.potato.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.rikdicht.potato.service.VideoRetriever;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.util.Assert;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Slf4j
 @RestController
@@ -22,20 +25,13 @@ public class PotatoController {
     private final VideoRetriever videoRetriever;
 
     @GetMapping
-    public void getVideo(HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> getVideo(HttpServletResponse response) throws IOException {
         log.info("GET request");
-        InputStream fileContents = videoRetriever.getRandomFile();
-        response.setContentType("video/mp4");
-        response.setHeader("Content-Disposition", "attachment; filename=" + "video.mp4");
-        log.info("downloading...");
-        returnResponse(response, fileContents);
-    }
-
-    private void returnResponse(HttpServletResponse response, InputStream is) throws IOException {
-        Assert.notNull(is, "inputstream is null");
-        IOUtils.copy(is, response.getOutputStream());
-        response.flushBuffer();
-        is.close();
-        response.getOutputStream().close();
+        File file = videoRetriever.getRandomFile();
+        InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(videoRetriever.getRandomFile()));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentLength(file.length());
+        headers.set("Content-Type", "video/mp4");
+        return new ResponseEntity<Object>(inputStreamResource, headers, HttpStatus.OK);
     }
 }
