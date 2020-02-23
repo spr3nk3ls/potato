@@ -1,4 +1,5 @@
-FROM openjdk:8-jdk-alpine
+FROM adoptopenjdk/openjdk11
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} potato.jar
+RUN mkdir target
 ENTRYPOINT ["java","-jar","/potato.jar"]
