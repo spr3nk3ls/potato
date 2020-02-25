@@ -27,6 +27,7 @@ public class PotatoController {
     public ResponseEntity<?> getVideo() throws IOException {
         log.info("GET request");
         File file = videoRetriever.getRandomFile();
+        log.info("Serving file " + file.getName());
         InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentLength(file.length());

@@ -1,8 +1,8 @@
 package nl.rikdicht.potato.service;
 
 import org.junit.Test;
+import org.springframework.core.io.Resource;
 
-import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -13,7 +13,7 @@ public class FileProviderTest {
 
     @Test
     public void getOrdered() {
-        List<InputStream> files = fileProvider.getFiles();
+        List<Resource> files = fileProvider.getResources();
         assertEquals(11, files.size());
     }
 }

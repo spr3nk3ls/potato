@@ -1,15 +1,16 @@
 package nl.rikdicht.potato.service;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class FileProvider {
 
@@ -17,21 +18,25 @@ public class FileProvider {
 
     private static final List<String> ordering = Arrays.asList("a", "b", "c", "d", "b", "c", "d", "b", "c", "e", "c");
 
-    List<InputStream> getFiles(){
-        List<InputStream> orderedFiles = new ArrayList<>();
-        Map<String, List<InputStream>> mappedFiles = getRandomizedMappedFiles();
+    List<Resource> getResources(){
+        List<Resource> orderedFiles = new ArrayList<>();
+        Map<String, List<Resource>> mappedFiles = getRandomizedMappedResources();
         for(String order : ordering){
-            List<InputStream> files = mappedFiles.get(order);
-            if(!files.isEmpty())
-                orderedFiles.add(files.remove(0));
+            List<Resource> resource = mappedFiles.get(order);
+            if(!resource.isEmpty())
+                orderedFiles.add(resource.remove(0));
         }
+        log.info("Creating file with sequence " + orderedFiles.stream()
+                .map(Resource::getFilename)
+                .map(string -> string.substring(string.indexOf("-") + 1, string.indexOf(".")))
+                .collect(Collectors.joining()));
         return orderedFiles;
     }
 
-    private Map<String, List<InputStream>> getRandomizedMappedFiles(){
-        Map<String, List<InputStream>> map = new HashMap<>();
+    private Map<String, List<Resource>> getRandomizedMappedResources(){
+        Map<String, List<Resource>> map = new HashMap<>();
         for(String key : mapping){
-            List<InputStream> files = getResourceFolderFiles("-" + key + "*");
+            List<Resource> files = getResourceFolderFiles("-" + key + "*");
             Collections.shuffle(files);
             map.put(key, files);
         }
@@ -39,16 +44,10 @@ public class FileProvider {
     }
 
     @SneakyThrows
-    private List<InputStream> getResourceFolderFiles(String pattern) {
+    private List<Resource> getResourceFolderFiles(String pattern) {
         ClassLoader cl = this.getClass().getClassLoader();
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
         Resource[] resources = resolver.getResources("classpath*:/*" + pattern + ".mp4");
-        return Arrays.stream(resources).map(FileProvider::getFileFromResource).collect(Collectors.toList());
+        return Arrays.stream(resources).collect(Collectors.toList());
     }
-
-    @SneakyThrows
-    private static InputStream getFileFromResource(Resource resource){
-        return resource.getInputStream();
-    }
-
 }

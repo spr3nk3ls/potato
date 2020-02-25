@@ -8,6 +8,7 @@ import org.mp4parser.muxer.Track;
 import org.mp4parser.muxer.builder.DefaultMp4Builder;
 import org.mp4parser.muxer.container.mp4.MovieCreator;
 import org.mp4parser.muxer.tracks.AppendTrack;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -30,14 +31,14 @@ public class VideoCreator {
 
     void createVideo(String filename) throws IOException {
         Movie movie = getMovie();
-        FileChannel fc = new FileOutputStream(new File(VIDEO_FOLDER + "/" + filename + ".mp4")).getChannel();
+        FileChannel fc = new FileOutputStream(new File(VIDEO_FOLDER + "/" + filename)).getChannel();
         Container mp4file = new DefaultMp4Builder().build(movie);
         mp4file.writeContainer(fc);
         fc.close();
     }
 
     Movie getMovie() {
-        List<AudioVideoTrack> tracks = fileProvider.getFiles().stream()
+        List<AudioVideoTrack> tracks = fileProvider.getResources().stream()
                 .map(this::getMovieForVideoFile)
                 .map(AudioVideoTrack::new)
                 .collect(Collectors.toList());
@@ -47,9 +48,12 @@ public class VideoCreator {
         return movie;
     }
 
-    private Movie getMovieForVideoFile(InputStream file) {
+    private Movie getMovieForVideoFile(Resource resource) {
         try {
-            return MovieCreator.build(createTempFile(file, UUID.randomUUID().toString()).getPath());
+            File tempFile = createTempFile(resource.getInputStream(), UUID.randomUUID().toString());
+            Movie movie = MovieCreator.build(tempFile.getPath());
+            tempFile.delete();
+            return movie;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
