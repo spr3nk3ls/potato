@@ -7,7 +7,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
+
+import static nl.rikdicht.potato.service.VideoCreator.VIDEO_FOLDER;
 
 @Slf4j
 @Service
@@ -18,7 +24,8 @@ public class VideoRetriever {
 
     private List<String> filenames = new ArrayList<>();
 
-    private static final long MAX_AGE = 20*1000;
+    private static final long MAX_AGE = 60*1000;
+    private static final long CREATE_RATE = 10*1000;
 
     public File getRandomFile() throws IOException {
         List<String> tempFilenames = new ArrayList<>(filenames);
@@ -26,32 +33,24 @@ public class VideoRetriever {
             createNewVideo();
         }
         Collections.shuffle(tempFilenames);
-        return new File("target/" + tempFilenames.get(0) + ".mp4");
+        return new File(VIDEO_FOLDER + "/" + tempFilenames.get(0) + ".mp4");
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = CREATE_RATE)
     void createNewVideo() throws IOException {
         String filename = UUID.randomUUID().toString();
-        log.info("Creating file " + filename);
         videoCreator.createVideo(filename);
         filenames.add(filename);
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = CREATE_RATE)
     void cleanup() throws Exception {
         long nowInMillis = Calendar.getInstance().getTimeInMillis();
-        Iterator<String> filenameIterator = filenames.iterator();
-        while(filenameIterator.hasNext()){
-            String filename = filenameIterator.next();
-            File file = new File("target/" + filename + ".mp4");
-            if (nowInMillis - file.lastModified() > MAX_AGE) {
-                log.info("Removing file " + file.getName());
-                filenameIterator.remove();
-                final boolean delete = file.delete();
-                if(!delete){
-                    throw new Exception("Unable to delete file");
-                }
-            }
+        try (Stream<Path> stream = Files.walk(Paths.get(VIDEO_FOLDER), 2)) {
+            stream.map(Path::toFile)
+                  .filter(file -> file.getName().endsWith(".mp4"))
+                  .filter(file -> nowInMillis - file.lastModified() > MAX_AGE)
+                  .forEach(File::delete);
         }
     }
 }

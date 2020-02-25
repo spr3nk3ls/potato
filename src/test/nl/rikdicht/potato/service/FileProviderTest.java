@@ -2,7 +2,6 @@ package nl.rikdicht.potato.service;
 
 import org.junit.Test;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 

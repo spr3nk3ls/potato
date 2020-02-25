@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,16 +18,16 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/video")
+@RequestMapping("/video.mp4")
 public class PotatoController {
 
     private final VideoRetriever videoRetriever;
 
     @GetMapping
-    public ResponseEntity<?> getVideo(HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> getVideo() throws IOException {
         log.info("GET request");
         File file = videoRetriever.getRandomFile();
-        InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(videoRetriever.getRandomFile()));
+        InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentLength(file.length());
         headers.set("Content-Type", "video/mp4");
