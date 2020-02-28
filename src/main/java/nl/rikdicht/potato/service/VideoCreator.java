@@ -1,9 +1,10 @@
 package nl.rikdicht.potato.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.mp4parser.Container;
+import org.mp4parser.muxer.InMemRandomAccessSourceImpl;
 import org.mp4parser.muxer.Movie;
+import org.mp4parser.muxer.RandomAccessSource;
 import org.mp4parser.muxer.Track;
 import org.mp4parser.muxer.builder.DefaultMp4Builder;
 import org.mp4parser.muxer.container.mp4.MovieCreator;
@@ -14,10 +15,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,10 +51,10 @@ public class VideoCreator {
 
     private Movie getMovieForVideoFile(Resource resource) {
         try {
-            File tempFile = createTempFile(resource.getInputStream(), UUID.randomUUID().toString());
-            Movie movie = MovieCreator.build(tempFile.getPath());
-            tempFile.delete();
-            return movie;
+            return MovieCreator.build(
+                    Channels.newChannel(resource.getInputStream()),
+                    getRandomAccessSource(resource),
+                    "tempfile");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -68,13 +69,10 @@ public class VideoCreator {
         }
     }
 
-    public static File createTempFile(InputStream in, String name) throws IOException {
-        final File tempFile = File.createTempFile(name, ".mp4");
-        tempFile.deleteOnExit();
-        try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            IOUtils.copy(in, out);
-        }
-        return tempFile;
+    private RandomAccessSource getRandomAccessSource(Resource resource) throws IOException {
+        byte[] resourceBytes = resource.getInputStream().readAllBytes();
+        ByteBuffer buffer = ByteBuffer.wrap(resourceBytes);
+        return new InMemRandomAccessSourceImpl(buffer);
     }
 }
 
