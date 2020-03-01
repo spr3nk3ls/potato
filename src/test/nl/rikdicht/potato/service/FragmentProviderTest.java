@@ -1,19 +1,19 @@
 package nl.rikdicht.potato.service;
 
+import nl.rikdicht.potato.domain.Fragment;
 import org.junit.Test;
-import org.springframework.core.io.Resource;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class FileProviderTest {
+public class FragmentProviderTest {
 
-    private FileProvider fileProvider = new FileProvider();
+    private FragmentProvider fragmentProvider = new FragmentProvider();
 
     @Test
     public void getOrdered() {
-        List<Resource> files = fileProvider.getResources();
+        List<Fragment> files = fragmentProvider.getFragments();
         assertEquals(11, files.size());
     }
 }

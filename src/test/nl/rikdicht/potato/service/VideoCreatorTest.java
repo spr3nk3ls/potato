@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 public class VideoCreatorTest {
 
-    private VideoCreator videoCreator = new VideoCreator(new FileProvider());
+    private VideoCreator videoCreator = new VideoCreator(new FragmentProvider());
 
     @Test
     public void createVideoFile() throws IOException {
