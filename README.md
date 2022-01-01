@@ -1,2 +1,2 @@
 # potato
-An audio/video poetry permutator
+An audio/video poetry permutator.
